@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Souls of Saraku — Quest Calendar 2026</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💀</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ══════════════ SETUP SCREEN ══════════════ -->
+  <div id="setup-screen">
+    <div class="setup-card">
+      <div class="sigil">☽ ✦ ☾</div>
+      <div class="setup-title">Souls of Saraku</div>
+      <div class="setup-subtitle">2026 Quest Calendar · Campaign Tracker</div>
+      <hr class="setup-divider">
+
+      <div class="setup-field">
+        <label class="setup-label">Anthropic API Key</label>
+        <input type="password" id="api-key-input" class="setup-input" placeholder="sk-ant-…" autocomplete="off">
+        <p class="setup-note">Stored in your browser only. Used to power the live GM — never shared.</p>
+      </div>
+
+      <div class="setup-field">
+        <label class="setup-label">Load Existing Save? <span class="opt">(optional)</span></label>
+        <input type="text" id="save-key-input" class="setup-input" placeholder="Paste save code to resume">
+        <p class="setup-note">Leave blank to start from your current campaign state (Jan 27). Paste a save code exported from a previous session to resume.</p>
+      </div>
+
+      <button class="btn-primary" id="btn-enter" onclick="App.enter()">
+        ⚔&nbsp;&nbsp;Enter the Dark Citadel
+      </button>
+
+      <div class="setup-footnote">Zeraphine Morgrave · Blooddrinker · Level 1 · Jan 27 ready</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MAIN APP ══════════════ -->
+  <div id="app" class="hidden">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="header-title">Souls of Saraku</div>
+        <div class="header-char" id="hdr-char">—</div>
+      </div>
+
+      <div class="header-stats" id="hdr-stats">
+        <div class="stat-cluster">
+          <div class="hp-bar-wrap">
+            <div class="hp-top">
+              <span class="hp-label">HP</span>
+              <span id="hp-text" class="hp-text">15/15</span>
+            </div>
+            <div class="hp-bar"><div class="hp-fill" id="hp-fill"></div></div>
+          </div>
+        </div>
+        <div class="stat-pill" title="Attack"><span>⚔</span> <span id="hdr-atk">+2</span></div>
+        <div class="stat-pill" title="Defense"><span>🛡</span> <span id="hdr-def">+1</span></div>
+        <div class="stat-pill" title="Gold">🪙 <span id="hdr-gold">8</span></div>
+        <div class="stat-pill" title="Notoriety">💀 <span id="hdr-not">2</span></div>
+        <div class="stat-pill soul-pill" title="Soul Crystal Power">💜 <span id="hdr-soul">+4</span></div>
+        <div class="stat-pill" title="Minions">👥 <span id="hdr-minions">2</span></div>
+      </div>
+
+      <div class="header-actions">
+        <span class="save-status" id="save-status"></span>
+        <button class="btn-icon" title="Export save code" onclick="App.exportSave()">📤</button>
+        <button class="btn-icon" title="Import save code" onclick="App.showImport()">📥</button>
+        <button class="btn-save" onclick="App.save()">💾 Save</button>
+      </div>
+    </header>
+
+    <!-- Body -->
+    <div class="app-body">
+
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+
+        <div class="panel">
+          <div class="panel-header">⚔ Combat</div>
+          <div class="panel-body">
+            <div class="stat-grid">
+              <div class="stat-box"><span class="s-label">HP</span><span class="s-val" id="sb-hp">15</span><span class="s-sub">/<span id="sb-maxhp">15</span></span></div>
+              <div class="stat-box"><span class="s-label">ATK</span><span class="s-val pos" id="sb-atk">+2</span></div>
+              <div class="stat-box"><span class="s-label">DEF</span><span class="s-val pos" id="sb-def">+1</span></div>
+              <div class="stat-box"><span class="s-label">DMG</span><span class="s-val" id="sb-dmg">d8</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">🧬 Traits</div>
+          <div class="panel-body" id="traits-panel"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">✨ Abilities</div>
+          <div class="panel-body" id="abilities-panel"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">🎒 Inventory <span class="panel-badge" id="inv-count">4</span></div>
+          <div class="panel-body" id="inventory-panel"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">🗡 Equipment</div>
+          <div class="panel-body" id="equipment-panel"><span class="muted-text">None equipped</span></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">📋 Notes</div>
+          <div class="panel-body" id="notes-panel"></div>
+        </div>
+
+      </aside>
+
+      <!-- Main -->
+      <main class="main-col">
+
+        <div id="day-card" class="day-card">
+          <div class="loading-wrap">
+            <div class="loading-skull">💀</div>
+            <div class="loading-text">Summoning the chronicle…</div>
+          </div>
+        </div>
+
+        <div class="panel journal-panel">
+          <div class="panel-header">
+            📜 Campaign Journal
+            <button class="btn-tiny" onclick="UI.toggleJournal()" id="journal-toggle">Hide</button>
+          </div>
+          <div class="panel-body" id="journal-panel"></div>
+        </div>
+
+      </main>
+
+    </div><!-- app-body -->
+  </div><!-- app -->
+
+  <!-- ══════════════ MODAL ══════════════ -->
+  <div class="modal-overlay hidden" id="modal">
+    <div class="modal-box">
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-actions" id="modal-actions"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/state.js"></script>
+  <script src="js/gm.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
