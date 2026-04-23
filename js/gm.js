@@ -52,7 +52,7 @@ Jan31/Feb1: Overlord losing. CHOOSE: Betray (note 'Betray Overlord') or Assist (
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})
+      body: JSON.stringify({model:'claude-sonnet-4-5-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})
     });
     if (!resp.ok) { const e=await resp.json().catch(()=>({})); throw new Error(e.error?.message||'API error '+resp.status); }
     const data = await resp.json();
