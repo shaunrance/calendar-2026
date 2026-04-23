@@ -3,158 +3,125 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Souls of Saraku — Quest Calendar 2026</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💀</text></svg>">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <title>Souls of Saraku — Chronicle</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☽</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- ══════════════ SETUP SCREEN ══════════════ -->
-  <div id="setup-screen">
-    <div class="setup-card">
-      <div class="sigil">☽ ✦ ☾</div>
-      <div class="setup-title">Souls of Saraku</div>
-      <div class="setup-subtitle">2026 Quest Calendar · Campaign Tracker</div>
-      <hr class="setup-divider">
-
-      <div class="setup-field">
-        <label class="setup-label">Anthropic API Key</label>
-        <input type="password" id="api-key-input" class="setup-input" placeholder="sk-ant-…" autocomplete="off">
-        <p class="setup-note">Stored in your browser only. Used to power the live GM — never shared.</p>
-      </div>
-
-      <div class="setup-field">
-        <label class="setup-label">Load Existing Save? <span class="opt">(optional)</span></label>
-        <input type="text" id="save-key-input" class="setup-input" placeholder="Paste save code to resume">
-        <p class="setup-note">Leave blank to start from your current campaign state (Jan 27). Paste a save code exported from a previous session to resume.</p>
-      </div>
-
-      <button class="btn-primary" id="btn-enter" onclick="App.enter()">
-        ⚔&nbsp;&nbsp;Enter the Dark Citadel
-      </button>
-
-      <div class="setup-footnote">Zeraphine Morgrave · Blooddrinker · Level 1 · Jan 27 ready</div>
+<div id="setup-screen">
+  <div class="setup-wrap">
+    <div class="setup-sigil">☽</div>
+    <h1 class="setup-h1">Souls of Saraku</h1>
+    <p class="setup-sub">Chronicle · 2026 Quest Calendar</p>
+    <div class="setup-rule"></div>
+    <div class="setup-field">
+      <label class="setup-label">Anthropic API Key</label>
+      <input type="password" id="api-key-input" class="setup-input" placeholder="sk-ant-…" autocomplete="off">
+      <span class="setup-hint">Stored in your browser only — never shared.</span>
     </div>
-  </div>
-
-  <!-- ══════════════ MAIN APP ══════════════ -->
-  <div id="app" class="hidden">
-
-    <!-- Header -->
-    <header class="app-header">
-      <div class="header-brand">
-        <div class="header-title">Souls of Saraku</div>
-        <div class="header-char" id="hdr-char">—</div>
-      </div>
-
-      <div class="header-stats" id="hdr-stats">
-        <div class="stat-cluster">
-          <div class="hp-bar-wrap">
-            <div class="hp-top">
-              <span class="hp-label">HP</span>
-              <span id="hp-text" class="hp-text">15/15</span>
-            </div>
-            <div class="hp-bar"><div class="hp-fill" id="hp-fill"></div></div>
-          </div>
-        </div>
-        <div class="stat-pill" title="Attack"><span>⚔</span> <span id="hdr-atk">+2</span></div>
-        <div class="stat-pill" title="Defense"><span>🛡</span> <span id="hdr-def">+1</span></div>
-        <div class="stat-pill" title="Gold">🪙 <span id="hdr-gold">8</span></div>
-        <div class="stat-pill" title="Notoriety">💀 <span id="hdr-not">2</span></div>
-        <div class="stat-pill soul-pill" title="Soul Crystal Power">💜 <span id="hdr-soul">+4</span></div>
-        <div class="stat-pill" title="Minions">👥 <span id="hdr-minions">2</span></div>
-      </div>
-
-      <div class="header-actions">
-        <span class="save-status" id="save-status"></span>
-        <button class="btn-icon" title="Export save code" onclick="App.exportSave()">📤</button>
-        <button class="btn-icon" title="Import save code" onclick="App.showImport()">📥</button>
-        <button class="btn-save" onclick="App.save()">💾 Save</button>
-      </div>
-    </header>
-
-    <!-- Body -->
-    <div class="app-body">
-
-      <!-- Sidebar -->
-      <aside class="sidebar" id="sidebar">
-
-        <div class="panel">
-          <div class="panel-header">⚔ Combat</div>
-          <div class="panel-body">
-            <div class="stat-grid">
-              <div class="stat-box"><span class="s-label">HP</span><span class="s-val" id="sb-hp">15</span><span class="s-sub">/<span id="sb-maxhp">15</span></span></div>
-              <div class="stat-box"><span class="s-label">ATK</span><span class="s-val pos" id="sb-atk">+2</span></div>
-              <div class="stat-box"><span class="s-label">DEF</span><span class="s-val pos" id="sb-def">+1</span></div>
-              <div class="stat-box"><span class="s-label">DMG</span><span class="s-val" id="sb-dmg">d8</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header">🧬 Traits</div>
-          <div class="panel-body" id="traits-panel"></div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header">✨ Abilities</div>
-          <div class="panel-body" id="abilities-panel"></div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header">🎒 Inventory <span class="panel-badge" id="inv-count">4</span></div>
-          <div class="panel-body" id="inventory-panel"></div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header">🗡 Equipment</div>
-          <div class="panel-body" id="equipment-panel"><span class="muted-text">None equipped</span></div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header">📋 Notes</div>
-          <div class="panel-body" id="notes-panel"></div>
-        </div>
-
-      </aside>
-
-      <!-- Main -->
-      <main class="main-col">
-
-        <div id="day-card" class="day-card">
-          <div class="loading-wrap">
-            <div class="loading-skull">💀</div>
-            <div class="loading-text">Summoning the chronicle…</div>
-          </div>
-        </div>
-
-        <div class="panel journal-panel">
-          <div class="panel-header">
-            📜 Campaign Journal
-            <button class="btn-tiny" onclick="UI.toggleJournal()" id="journal-toggle">Hide</button>
-          </div>
-          <div class="panel-body" id="journal-panel"></div>
-        </div>
-
-      </main>
-
-    </div><!-- app-body -->
-  </div><!-- app -->
-
-  <!-- ══════════════ MODAL ══════════════ -->
-  <div class="modal-overlay hidden" id="modal">
-    <div class="modal-box">
-      <div class="modal-title" id="modal-title"></div>
-      <div class="modal-body" id="modal-body"></div>
-      <div class="modal-actions" id="modal-actions"></div>
+    <div class="setup-field">
+      <label class="setup-label">Resume Save <span class="setup-optional">(optional)</span></label>
+      <input type="text" id="save-key-input" class="setup-input" placeholder="Paste export code to resume…">
+      <span class="setup-hint">Leave blank to begin from January 27 as Zeraphine.</span>
     </div>
+    <button class="setup-btn" onclick="App.enter()">Enter the Chronicle</button>
+    <p class="setup-character">Zeraphine Morgrave · Blooddrinker · Level 1 · Day 27</p>
   </div>
+</div>
 
-  <!-- Scripts -->
-  <script src="js/state.js"></script>
-  <script src="js/gm.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/app.js"></script>
+<div id="app" class="hidden">
+  <nav class="topbar">
+    <div class="topbar-brand">
+      <span class="topbar-s">S</span>
+      <span class="topbar-title">Souls of Saraku</span>
+      <span class="topbar-divider">·</span>
+      <span class="topbar-sub">CHRONICLE</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="tb-btn" onclick="App.exportSave()">EXPORT</button>
+      <button class="tb-btn" onclick="App.showImport()">SHARE</button>
+      <button class="tb-btn tb-btn-primary" onclick="App.save()">SAVE</button>
+    </div>
+  </nav>
+
+  <div class="app-layout">
+    <aside class="sidebar-left">
+      <div class="sl-brand">SOULS OF SARAKU</div>
+      <div class="char-identity">
+        <div class="char-portrait" id="char-portrait"><span class="portrait-glyph">⚔</span></div>
+        <div class="char-info">
+          <div class="char-name" id="char-name">Zeraphine Morgrave</div>
+          <div class="char-class" id="char-class">Blooddrinker · Level 1</div>
+        </div>
+      </div>
+      <div class="sl-rule"></div>
+      <div class="sl-section-label">COMBAT <span class="sl-section-tag">combat</span></div>
+      <div class="combat-grid">
+        <div class="cg-cell"><div class="cg-label">INI</div><div class="cg-val" id="cg-hp">15</div></div>
+        <div class="cg-cell"><div class="cg-label">ATK</div><div class="cg-val" id="cg-atk">+2</div></div>
+        <div class="cg-cell"><div class="cg-label">DEF</div><div class="cg-val" id="cg-def">12</div></div>
+        <div class="cg-cell"><div class="cg-label">DMG</div><div class="cg-val" id="cg-dmg">1d8+2</div></div>
+      </div>
+      <div class="sl-rule"></div>
+      <div class="sl-section-label">TRAITS</div>
+      <div class="traits-list" id="traits-list"></div>
+      <div class="sl-rule"></div>
+      <div class="sl-section-label">ABILITIES <span class="sl-section-tag" id="ability-count">3</span></div>
+      <div class="abilities-list" id="abilities-list"></div>
+      <div class="sl-rule"></div>
+      <div class="sl-section-label">INVENTORY</div>
+      <div class="inventory-list" id="inventory-list"></div>
+    </aside>
+
+    <main class="main-center">
+      <div class="day-eyebrow" id="day-eyebrow">TUESDAY · DAY 27 OF THE CHRONICLE</div>
+      <div class="day-header-row">
+        <h2 class="day-h2" id="day-h2">January <em>27</em>, 2026</h2>
+        <div class="hp-ring-wrap">
+          <svg class="hp-ring" viewBox="0 0 80 80">
+            <circle class="hp-ring-bg" cx="40" cy="40" r="34"/>
+            <circle class="hp-ring-fill" id="hp-ring-fill" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="0"/>
+          </svg>
+          <div class="hp-ring-text">
+            <span class="hp-ring-val" id="hp-ring-val">15</span>
+            <span class="hp-ring-max" id="hp-ring-max">/15 HP</span>
+          </div>
+        </div>
+      </div>
+      <div class="day-chapter" id="day-chapter">Chapter III · <em>The Throne of Broken Oaths</em></div>
+      <div class="scene-banner">
+        <div class="scene-label">SCENE · <span id="scene-title">—</span></div>
+      </div>
+      <div id="day-card" class="day-card">
+        <div class="day-loading">
+          <div class="loading-glyph">☽</div>
+          <div class="loading-text">The chronicle stirs…</div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="sidebar-right">
+      <div class="sr-label">CHRONICLE</div>
+      <div class="sr-headline"><span id="sr-days">26 days</span><br>behind you</div>
+      <div class="sr-rule"></div>
+      <div class="journal-feed" id="journal-feed"></div>
+    </aside>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modal">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<script src="js/state.js"></script>
+<script src="js/gm.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
